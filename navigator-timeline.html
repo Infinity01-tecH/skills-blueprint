@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Proof of Work — Skills Roadmap</title>
+<meta name="robots" content="noindex" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#1C1C1C; color:#F0EDE6; font-family:'DM Sans',sans-serif; min-height:100vh; padding:0 0 80px; }
+  .wrap { max-width:760px; margin:0 auto; padding:56px 24px 0; }
+  .brand { display:flex; align-items:center; gap:8px; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:15px; letter-spacing:0.5px; color:rgba(240,237,230,0.4); margin-bottom:40px; }
+  .brand .lime { color:#C8F135; }
+  .header { border-bottom:1px solid rgba(240,237,230,0.1); padding-bottom:28px; margin-bottom:32px; }
+  .eyebrow { font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:rgba(200,241,53,0.7); font-weight:600; margin-bottom:10px; }
+  .skill-title { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:clamp(32px,6vw,48px); line-height:1.05; margin-bottom:14px; }
+  .skill-sub { font-size:14px; color:rgba(240,237,230,0.5); }
+  .stat-row { display:flex; gap:28px; margin-top:24px; flex-wrap:wrap; }
+  .stat { }
+  .stat-num { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:26px; color:#C8F135; }
+  .stat-label { font-size:11px; text-transform:uppercase; letter-spacing:0.6px; color:rgba(240,237,230,0.4); margin-top:2px; }
+  .overall-bar { height:6px; border-radius:4px; background:rgba(240,237,230,0.08); overflow:hidden; margin-top:22px; }
+  .overall-bar-fill { height:100%; background:#C8F135; border-radius:4px; transition:width .4s ease; }
+
+  .phase { border:1px solid rgba(240,237,230,0.1); border-radius:12px; margin-bottom:16px; overflow:hidden; }
+  .phase.done { border-color:rgba(200,241,53,0.3); background:rgba(200,241,53,0.03); }
+  .phase-head { display:flex; align-items:center; justify-content:space-between; padding:16px 18px; }
+  .phase-head-left { display:flex; align-items:center; gap:12px; }
+  .phase-num { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:15px; color:rgba(240,237,230,0.3); }
+  .phase.done .phase-num { color:rgba(200,241,53,0.6); }
+  .phase-title { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:17px; }
+  .phase-meta { font-size:11px; color:rgba(240,237,230,0.4); text-align:right; }
+  .phase-quiz-badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; color:#C8F135; background:rgba(200,241,53,0.1); border:1px solid rgba(200,241,53,0.25); border-radius:20px; padding:3px 10px; margin-top:4px; }
+  .steps { padding:0 18px 16px 18px; display:flex; flex-direction:column; gap:8px; }
+  .step-row { display:flex; align-items:center; gap:10px; font-size:13px; padding:8px 10px; border-radius:8px; background:rgba(240,237,230,0.03); }
+  .step-check { width:16px; height:16px; border-radius:50%; border:1.5px solid rgba(240,237,230,0.25); flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .step-row.done .step-check { background:#C8F135; border-color:#C8F135; }
+  .step-row.done .step-check svg { width:10px; height:10px; stroke:#1C1C1C; }
+  .step-row.done .step-title { color:#F0EDE6; }
+  .step-title { color:rgba(240,237,230,0.55); }
+
+  .empty, .loading, .error { text-align:center; padding:120px 20px; color:rgba(240,237,230,0.4); font-size:14px; }
+  .error strong { display:block; color:#F0EDE6; font-size:18px; margin-bottom:8px; font-family:'Barlow Condensed',sans-serif; }
+
+  .footer-note { text-align:center; font-size:11px; color:rgba(240,237,230,0.25); margin-top:48px; }
+</style>
+</head>
+<body>
+
+<div class="wrap" id="app">
+  <div class="brand">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C8F135" stroke-width="2.5"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+    Skills<span class="lime">Roadmap</span> · Proof of Work
+  </div>
+  <div id="content" class="loading">Loading timeline…</div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  const SUPABASE_URL = 'https://ykczxitiyuwbuslmdead.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrY3p4aXRpeXV3YnVzbG1kZWFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5ODc1OTYsImV4cCI6MjA5ODU2MzU5Nn0.LwGmS3Ko2Vri4DpFCyuB8uW-RWwtFK_UbX9L_sCgpRM';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const content = document.getElementById('content');
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function typeLabel(t) {
+    return { watch:'Watch', read:'Read', practice:'Practice', inspire:'Inspire' }[t] || '';
+  }
+
+  function render(row) {
+    const roadmap = row.roadmap || {};
+    const phases = roadmap.phases || [];
+    const progress = row.progress || {};
+    const quizScores = row.quiz_scores || {};
+
+    const totalSteps = phases.reduce((a,p)=>a+(p.steps?.length||0),0);
+    const doneSteps = Object.values(progress).filter(Boolean).length;
+    const pct = totalSteps > 0 ? Math.round((doneSteps/totalSteps)*100) : 0;
+    const phasesDone = phases.filter(p => p.steps.length>0 && p.steps.every(s=>progress[s.id])).length;
+    const quizCount = Object.keys(quizScores).length;
+
+    const phasesHtml = phases.map((phase, i) => {
+      const stepsDone = (phase.steps||[]).filter(s=>progress[s.id]).length;
+      const isDone = phase.steps.length>0 && stepsDone === phase.steps.length;
+      const quiz = quizScores[phase.id];
+      const stepsHtml = (phase.steps||[]).map(step => {
+        const done = !!progress[step.id];
+        return `<div class="step-row ${done?'done':''}">
+          <div class="step-check">${done?'<svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
+          <div class="step-title">${esc(step.title)}</div>
+        </div>`;
+      }).join('');
+      return `<div class="phase ${isDone?'done':''}">
+        <div class="phase-head">
+          <div class="phase-head-left">
+            <div class="phase-num">${String(i+1).padStart(2,'0')}</div>
+            <div class="phase-title">${esc(phase.title)}</div>
+          </div>
+          <div class="phase-meta">
+            ${stepsDone}/${phase.steps.length} steps
+            ${quiz ? `<div class="phase-quiz-badge">Quiz ${quiz.score}/${quiz.total}</div>` : ''}
+          </div>
+        </div>
+        <div class="steps">${stepsHtml}</div>
+      </div>`;
+    }).join('');
+
+    content.className = '';
+    content.innerHTML = `
+      <div class="header">
+        <div class="eyebrow">Living Learning Timeline</div>
+        <div class="skill-title">${esc(row.skill || roadmap.skill || 'Skill Roadmap')}</div>
+        ${roadmap.tagline ? `<div class="skill-sub">${esc(roadmap.tagline)}</div>` : ''}
+        <div class="stat-row">
+          <div class="stat"><div class="stat-num">${pct}%</div><div class="stat-label">Complete</div></div>
+          <div class="stat"><div class="stat-num">${phasesDone}/${phases.length}</div><div class="stat-label">Phases mastered</div></div>
+          <div class="stat"><div class="stat-num">${quizCount}</div><div class="stat-label">Quizzes passed</div></div>
+        </div>
+        <div class="overall-bar"><div class="overall-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      ${phasesHtml}
+      <div class="footer-note">Updates automatically as this roadmap progresses — bookmark, don't screenshot.</div>
+    `;
+  }
+
+  async function load() {
+    const slug = new URLSearchParams(window.location.search).get('slug');
+    if (!slug) {
+      content.className = 'error';
+      content.innerHTML = '<strong>No timeline specified</strong>This link is missing its share ID.';
+      return;
+    }
+    const { data, error } = await supabase
+      .from('public_timelines')
+      .select('skill, roadmap, progress, quiz_scores, is_public')
+      .eq('slug', slug)
+      .eq('is_public', true)
+      .maybeSingle();
+
+    if (error || !data) {
+      content.className = 'error';
+      content.innerHTML = '<strong>Timeline not found</strong>This link may be private or no longer exists.';
+      return;
+    }
+    render(data);
+  }
+
+  load();
+</script>
+</body>
+</html>
